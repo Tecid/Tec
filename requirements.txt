@@ -1,0 +1,28 @@
+# Flask & Extensions
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-socketio>=5.3.0
+flask-jwt-extended>=4.6.0
+
+# Database
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.0
+
+# WebSocket
+python-socketio>=5.10.0
+eventlet>=0.35.0
+
+# Password Hashing
+bcrypt>=4.1.0
+
+# Environment
+python-dotenv>=1.0.0
+cryptography>=42.0.0
+
+# MT5 (for bot)
+MetaTrader5>=5.0.45
+numpy>=1.24.0
+pandas>=2.0.0
+
+# GUI Automation (for click mode)
+pywinauto>=0.6.8

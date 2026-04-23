@@ -1,0 +1,46 @@
+# Arbitrage Master-Child Architecture: The Zero-API Solution
+
+## 1. Executive Summary
+**The Core Problem:** Broker anti-cheat systems aggressively flag and ban profitable accounts that use direct algorithmic trading APIs (like MetaTrader5 Python integration). They detect superhuman execution latency, perfect mouse coordinates, and API connection handshakes.
+
+**The Solution:** A distributed **Master-Child Architecture**. We completely decouple the "Thinking" (algorithm logic) from the "Doing" (trade execution). Live accounts are 100% stripped of all algorithmic APIs, making them indistinguishable from a human trader physically clicking a mouse. 
+
+## 2. System Architecture Overview
+The system relies on three interconnected tiers that operate in real-time milliseconds:
+1. **The Master Node (The Brain)** – Scans the market for gaps via API on disposable Demo accounts.
+2. **The Communication Bridge (The Nerve System)** – Instantly broadcasts execution signals over an ultra-low latency internet socket.
+3. **The Child Nodes (The Hands)** – Lightweight scripts on client VPSs that listen for the signal and physically "click" the Buy/Sell buttons on Live MT5 terminals using humanized physical UI automation.
+
+---
+
+## 3. Tier 1: The Master Bot (The Brain)
+The Master Node is the only bot touching the broker's API.
+* **Hosting:** Runs on a dedicated, high-speed VPS.
+* **Accounts:** Connected to **Demo Accounts** for both HFM and Equiti. (If the broker detects the algorithm and bans the account, no real funds are lost—the Demo account is simply replaced in seconds).
+* **Duty:** Uses the fast, exact MetaTrader5 Python API to read live ticks and calculate the Arbitrage spread. 
+* **Zero Execution:** The Master does not place any live trades. Its sole job is to watch the market 24/5 and calculate the math.
+
+## 4. Tier 2: The Communication Bridge (ZeroMQ)
+When the Master detects a profitable arbitrage gap, it cannot use slow HTTP requests to notify the clients.
+* **Technology:** We use **ZeroMQ (ZMQ) PUB/SUB sockets**, military-grade networking technology used in High-Frequency Trading (HFT).
+* **Speed:** The Master "Publishes" a tiny encrypted text string (e.g., `{"signal": "EXECUTE", "gap_size": 1.2}`). The message travels across the internet to all connected Child bots in roughly 1 to 5 milliseconds.
+
+## 5. Tier 3: The Child Bots (The Hands)
+This is what your clients run on their Live Accounts to keep them 100% safe from broker bans.
+* **Total API Decoupling:** The Child Bot completely removes the `MetaTrader5` Python library. "Allow WebRequest" or Algo Trading settings in MT5 are completely turned off. To the broker's server, the Live Account is 100% manual.
+* **Humanized Execution:** When the Child Bot receives the ZeroMQ signal from the Master, it engages a physical "Win32 UI Clicker". 
+  * It adds random pixel scatter to its coordinates so it never clicks the exact same pixel twice.
+  * It adds a tiny randomized millisecond delay between pressing the mouse button down and releasing it up.
+  * It visually interacts with the MT5 One-Click Trading panel exactly like a human hand.
+
+## 6. Connection & Latency Synchronization (The Proxy Alert)
+Because Arbitrage relies on perfectly synced ticking data, the Master and the Child must connected to the exact same broker geographical routing proxy (e.g., "Access Server 2").
+* **Log Sniffing:** The Master Bot continuously reads its own daily MT5 `.log` text file in the background (0% API footprint). 
+* **The Alert:** If the Master detects that MT5 automatically routed it to a new proxy (e.g., "Access Server 5"), it instantly blasts a `SERVER_CHANGE` alert over the ZeroMQ network.
+* **Client Notification:** The Child Bot receives this alert and plays a loud beep on the client's computer while displaying a massive Windows Popup Toast Notification:
+  > *"⚠️ URGENT: Master routing changed to Access Server 5! Please manually change your MT5 Proxy to maintain perfect sync!"*
+* By matching the Master's exact Access Server, the Child guarantees its terminal is receiving the exact same micro-second price ticks as the Master's brain.
+
+## 7. Security and Business Scaling
+* **Code Protection:** The advanced arbitrage math, news filtering, and gap calculations remain locked tightly on your Master Server. Clients only receive the "dumb" clicker script. If a client attempts to reverse-engineer the Child Bot, they only find an empty husk that knows how to click a mouse when told to.
+* **Infinite Scaling:** A single Master Node can publish its ZeroMQ signal to 1, 10, or 500 connected Child Bots simultaneously without any performance loss. You are effectively building an undetectable Prop-Firm Copy-Trader network.
